@@ -50,217 +50,25 @@ public class Main {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-////////////////////////////////////////
+
         System.out.println("Aloha! At the start you must create a bank.");
+        newBank();
 
-        in = new Scanner(System.in);
-        System.out.println("Please, write the bank name: ");
-        name = in.nextLine();
-
-        try{
-            String insertTableSQL = "INSERT INTO banks"
-                    + "(bank_id, name) " + "VALUES"
-                    + "(?,?)";
-            dbActionsWParam(insertTableSQL, bid, name);
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        System.out.printf("Bank %s is saved in database on id - " + bid, name);
-        bid++;
-/////////////////////////////////////////////////
         System.out.println("Alright. Next lets create clients of a bank.");
-        System.out.println("Choose the bank to which you want to add customers:");
-        try{
-            String selectTableSQL = "SELECT bank_id, name from banks";
-            bankSelect(selectTableSQL);
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        if(bankList.size()>0){
-            for(int i = 0; i<bankList.size(); i++){
-                System.out.println(bankList.get(i).getId() + ". " + bankList.get(i).getBankName());
-            }
-        } else {
-            System.out.println("No one bank exist");
-        }
+        chooseBank();
+        newClient();
 
-         in = new Scanner(System.in);
-            System.out.println("Write the bank id: ");
-            chbid = in.nextInt();
-
-
-        for(int i = 0; i<bankList.size(); i++){
-            if(chbid == bankList.get(i).getId()){
-                chbidLine = bankList.get(i).getBankName();
-                System.out.println("You choosen bank - " + bankList.get(i).getBankName());
-            }
-        }
-//////////////////////////////////////////
-        System.out.println("Now create a client. Please, write his/her name:");
-
-//        try () {
-             in = new Scanner(System.in);
-            cName = in.nextLine();
-        try{
-            String selectTableSQL = "SELECT * from clients where bank_id =" + chbid;
-            clientSelect(selectTableSQL);
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        if(clientList.size()>0){
-            for(int i = 0; i<clientList.size(); i++){
-                if(clientList.get(i).getName().equals(cName)){
-                    System.out.println("That client already exist. Write name of the new client: ");
-                    cName = in.nextLine();
-                }
-            }
-        }
-            System.out.println("Age: ");
-            cAge = in.nextInt();
-            System.out.println("Gender - men? Write 'y' or 'n'");
-            in.nextLine();
-            cGenderLine = in.nextLine();
-            if (cGenderLine.equals("y")){
-                cGender = true;
-            } else cGender = false;
-//        }
-        try{
-            convertLine = String.valueOf(chbid).concat(String.valueOf(cid));
-            int cid = Integer.valueOf(convertLine);
-            String insertTableSQL = "INSERT INTO clients"
-                    + "(client_id, bank_id, name, age, gender) " + "VALUES"
-                    + "(?,?,?,?,?)";
-            dbActionsWParam(insertTableSQL, cid, chbid, cName, cAge, cGender);
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        cid++;
-        System.out.println("Client " + cName + "is pined to bank " + chbidLine);
-////////////////////////////////////////////////////
         System.out.println("Well done. Create some accounts for that client.");
-        System.out.println("Choose the client to which you want to add account:");
-        try{
-            String selectTableSQL = "SELECT * from clients where bank_id =" + chbid;
-            clientSelect(selectTableSQL);
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        if(clientList.size()>0){
-            for(int i = 0; i<clientList.size(); i++){
-                System.out.println(clientList.get(i).getId() + ". " + clientList.get(i).getName());
-            }
-        } else {
-            System.out.println("No one client exist");
-        }
-
-//        try () {
-             in = new Scanner(System.in);
-            System.out.println("Write the client id: ");
-            chcid = in.nextInt();
-//        }
-
-        for(int i = 0; i<clientList.size(); i++){
-            if(chcid == clientList.get(i).getId()){
-                chcidLine = clientList.get(i).getName();
-                System.out.println("You choosen client - " + clientList.get(i).getName());
-            }
-        }
-/////////////////////////////////////
+        chooseClient();
         System.out.println("And now lets create 2 account. One with overdraft, on w/o. Please, choose the type of account: ");
         System.out.println("1 - account with overdraft, /n 0 - account w/o overdraft");
-
-//        try () {
-             in = new Scanner(System.in);
-            System.out.println("With overdraft? Write 'y' or 'n'");
-            aTypeLine = in.nextLine();
-            if (aTypeLine.equals("y")){
-                aType = true;
-            } else aType = false;
-            if (aType == true){
-                System.out.println("Balance: ");
-                aBal = in.nextDouble();
-                System.out.println("Overdraft: ");
-                aOD = in.nextDouble();
-            } else {
-                System.out.println("Balance: ");
-                aBal = in.nextDouble();
-                aOD = 0;
-            }
-//        }
-        try{
-            convertLine = String.valueOf(chcid).concat(String.valueOf(aid));
-            int aid = Integer.valueOf(convertLine);
-            String insertTableSQL = "INSERT INTO accounts"
-                    + "(account_id, client_id, account_type, balance, overdraft) " + "VALUES"
-                    + "(?,?,?,?,?)";
-            dbActionsWParam(insertTableSQL, aid, chcid, aType, aBal, aOD);
-            lineForUpdateClients = aid + ", ";
-//            lineForUpdateClients = lineForUpdateClients.concat(", ");
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        try{
-            String updateTableSQL = "UPDATE clients SET account_id = ? WHERE client_id = ?";
-            dbActionsWParam(updateTableSQL, lineForUpdateClients, chcid);
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        aid++;
-///////////////////////////////////////
+        newAcc();
         System.out.println("And the next one acc: ");
-//        try () {
-             in = new Scanner(System.in);
-            System.out.println("With overdraft? Write 'y' or 'n'");
-            aTypeLine = in.nextLine();
-            if (aTypeLine.equals("y")){
-                aType = true;
-            } else aType = false;
-            if (aType == true){
-                System.out.println("Balance: ");
-                aBal = in.nextDouble();
-                System.out.println("Overdraft: ");
-                aOD = in.nextDouble();
-            } else {
-                System.out.println("Balance: ");
-                aBal = in.nextDouble();
-                aOD = 0;
-            }
-//        }
-        try{
-            convertLine = String.valueOf(chcid).concat(String.valueOf(aid));
-            int aid = Integer.valueOf(convertLine);
-            String insertTableSQL = "INSERT INTO accounts"
-                    + "(account_id, client_id, account_type, balance, overdraft) " + "VALUES"
-                    + "(?,?,?,?,?)";
-            dbActionsWParam(insertTableSQL, aid, chcid, aType, aBal, aOD);
-            lineForUpdateClients.concat(String.valueOf(aid));
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        try{
-            String updateTableSQL = "UPDATE clients SET account_id = ? WHERE client_id = ?";
-            dbActionsWParam(updateTableSQL, lineForUpdateClients, chcid);
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        aid++;
-//////////////////////
+        newAcc();
+
         System.out.println("Lets see at our accounts: ");
-        try{
-            String selectTableSQL = "SELECT * from accounts where client_id = ?";
-            accountSelect(selectTableSQL, chcid);
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        AbstractAccount a = new SavingAccount();
-        if(abAccountList.size()>0){
-            a.printAccInfo(abAccountList);
-        } else {
-            System.out.println("No one account exist");
-        }
-//////////////////////
-//////////////////////
-//////////////////////
+        showAcc();
+
         System.out.println("All objects has been create succsessfuly.");
         int n, v=0;
             do {
@@ -305,46 +113,170 @@ public class Main {
                     System.out.println(e.getMessage());
                 }
             } while (v!=784);
+    }
 
-        /*//создание объектов
-        List<AbstractAccount> sbCliAccounts = new ArrayList<>();
-        sbCliAccounts.add(new SavingAccount(11,100));
-        sbCliAccounts.add(new SavingAccount(12,750));
-        sbCliAccounts.add(new CheckingAccount(21, 1000, 200));
-
-        Client sberClient = new Client();
-        sberClient.setName("Vasya");
-        sberClient.setAge(32);
-        sberClient.setGender(true);
-        sberClient.setAbAcc(sbCliAccounts);
-
-        List<Client> sberClients = new ArrayList<>();
-        sberClients.add(sberClient);
-
-        Bank sberbank = new Bank();
-        sberbank.setBankName("Sberbank");
-        sberbank.setClients(sberClients);
-
-        sberbank.getBankInfo();
-        System.out.println(" ");
-
-        //операции с балансом
+    private static void showAcc() {
         try{
-            sbCliAccounts.set(0, new SavingAccount(sbCliAccounts.get(0).id, sbCliAccounts.get(0).refill(50)));
-            sberbank.getBankInfo();
-            sbCliAccounts.set(0, new SavingAccount(sbCliAccounts.get(0).id, sbCliAccounts.get(0).withdrawal(25)));
-            sberbank.getBankInfo();
-
-            sbCliAccounts.set(0, new SavingAccount(sbCliAccounts.get(0).id, sbCliAccounts.get(0).refill(-50)));
-            sberbank.getBankInfo();
-
-            sbCliAccounts.set(2, new CheckingAccount(sbCliAccounts.get(2).id, sbCliAccounts.get(2).withdrawal(1100), sbCliAccounts.get(2).overdraft ));
-            sberbank.getBankInfo();
+            String selectTableSQL = "SELECT * from accounts where client_id = ?";
+            accountSelect(selectTableSQL, chcid);
+        } catch (SQLException e){
+            System.out.println(e.getMessage());
         }
-        catch (NegativeOperationException noe) {
-            System.out.println(noe.getMessage());
-            System.out.println(noe.getNumber());
-        }*/
+        AbstractAccount a = new SavingAccount();
+        if(abAccountList.size()>0){
+            a.printAccInfo(abAccountList);
+        } else {
+            System.out.println("No one account exist");
+        }
+    }
+
+    private static void newAcc() {
+        in = new Scanner(System.in);
+        System.out.println("With overdraft? Write 'y' or 'n'");
+        aTypeLine = in.nextLine();
+        if (aTypeLine.equals("y")){
+            aType = true;
+        } else aType = false;
+        if (aType == true){
+            System.out.println("Balance: ");
+            aBal = in.nextDouble();
+            System.out.println("Overdraft: ");
+            aOD = in.nextDouble();
+        } else {
+            System.out.println("Balance: ");
+            aBal = in.nextDouble();
+            aOD = 0;
+        }
+        try{
+            convertLine = String.valueOf(chcid).concat(String.valueOf(aid));
+            int aid = Integer.valueOf(convertLine);
+            String insertTableSQL = "INSERT INTO accounts"
+                    + "(account_id, client_id, account_type, balance, overdraft) " + "VALUES"
+                    + "(?,?,?,?,?)";
+            dbActionsWParam(insertTableSQL, aid, chcid, aType, aBal, aOD);
+            lineForUpdateClients = aid + ", ";
+        } catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+        try{
+            String updateTableSQL = "UPDATE clients SET account_id = ? WHERE client_id = ?";
+            dbActionsWParam(updateTableSQL, lineForUpdateClients, chcid);
+        } catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+        aid++;
+    }
+
+    private static void chooseClient() {
+        System.out.println("Choose the client to which you want to add account:");
+        try{
+            String selectTableSQL = "SELECT * from clients where bank_id =" + chbid;
+            clientSelect(selectTableSQL);
+        } catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+        if(clientList.size()>0){
+            for(int i = 0; i<clientList.size(); i++){
+                System.out.println(clientList.get(i).getId() + ". " + clientList.get(i).getName());
+            }
+        } else {
+            System.out.println("No one client exist");
+        }
+
+        in = new Scanner(System.in);
+        System.out.println("Write the client id: ");
+        chcid = in.nextInt();
+
+        for(int i = 0; i<clientList.size(); i++){
+            if(chcid == clientList.get(i).getId()){
+                chcidLine = clientList.get(i).getName();
+                System.out.println("You choosen client - " + clientList.get(i).getName());
+            }
+        }
+    }
+
+    private static void newClient() {
+        System.out.println("Now create a client. Please, write his/her name:");
+
+        in = new Scanner(System.in);
+        cName = in.nextLine();
+        try{
+            String selectTableSQL = "SELECT * from clients where bank_id =" + chbid;
+            clientSelect(selectTableSQL);
+        } catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+        if(clientList.size()>0){
+            for(int i = 0; i<clientList.size(); i++){
+                if(clientList.get(i).getName().equals(cName)){
+                    System.out.println("That client already exist. Write name of the new client: ");
+                    cName = in.nextLine();
+                }
+            }
+        }
+        System.out.println("Age: ");
+        cAge = in.nextInt();
+        System.out.println("Gender - men? Write 'y' or 'n'");
+        in.nextLine();
+        cGenderLine = in.nextLine();
+        if (cGenderLine.equals("y")){
+            cGender = true;
+        } else cGender = false;
+        try{
+            convertLine = String.valueOf(chbid).concat(String.valueOf(cid));
+            int cid = Integer.valueOf(convertLine);
+            String insertTableSQL = "INSERT INTO clients"
+                    + "(client_id, bank_id, name, age, gender) " + "VALUES"
+                    + "(?,?,?,?,?)";
+            dbActionsWParam(insertTableSQL, cid, chbid, cName, cAge, cGender);
+        } catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+        cid++;
+        System.out.println("Client " + cName + "is pined to bank " + chbidLine);
+    }
+
+    private static void newBank() {
+        in = new Scanner(System.in);
+        System.out.println("Please, write the bank name: ");
+        name = in.nextLine();
+
+        try{
+            String insertTableSQL = "INSERT INTO banks"
+                    + "(bank_id, name) " + "VALUES"
+                    + "(?,?)";
+            dbActionsWParam(insertTableSQL, bid, name);
+        } catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+        System.out.printf("Bank %s is saved in database on id - " + bid + "/n", name);
+        bid++;
+    }
+
+    private static void chooseBank() {
+        System.out.println("Choose the bank to which you want to add customers:");
+        try{
+            String selectTableSQL = "SELECT bank_id, name from banks";
+            bankSelect(selectTableSQL);
+        } catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+        if(bankList.size()>0){
+            for(int i = 0; i<bankList.size(); i++){
+                System.out.println(bankList.get(i).getId() + ". " + bankList.get(i).getBankName());
+            }
+        } else {
+            System.out.println("No one bank exist");
+        }
+        in = new Scanner(System.in);
+        System.out.println("Write the bank id: ");
+        chbid = in.nextInt();
+        for(int i = 0; i<bankList.size(); i++){
+            if(chbid == bankList.get(i).getId()){
+                chbidLine = bankList.get(i).getBankName();
+                System.out.println("You choosen bank - " + bankList.get(i).getBankName());
+            }
+        }
     }
 
     private static Connection getDBConnection() {
@@ -540,11 +472,11 @@ public class Main {
             ResultSet rs = statement.executeQuery(selectTableSQL);
 
             while (rs.next()) {
-                Integer cid = rs.getInt("client_id");
-                Integer chbid = rs.getInt("bank_id");
+                int cid = rs.getInt("client_id");
+                int chbid = rs.getInt("bank_id");
                 String name = rs.getString("name");
-                Integer age = rs.getInt("age");
-                Boolean gender = rs.getBoolean("gender");
+                int age = rs.getInt("age");
+                boolean gender = rs.getBoolean("gender");
                 String accounts = rs.getString("account_id");
                 Client client = new Client();
                 client.setId(cid);
@@ -577,11 +509,11 @@ public class Main {
             ResultSet rs = statement.executeQuery();
 
             while (rs.next()) {
-                Integer aid = rs.getInt("account_id");
+                int aid = rs.getInt("account_id");
                 Integer client = rs.getInt("client_id");
-                Boolean aType = rs.getBoolean("account_type");
-                Double aBal = rs.getDouble("balance");
-                Double aOD = rs.getDouble("overdraft");
+                boolean aType = rs.getBoolean("account_type");
+                double aBal = rs.getDouble("balance");
+                double aOD = rs.getDouble("overdraft");
                 if(aType==true){
                     CheckingAccount account = new CheckingAccount();
                     account.setId(aid);
@@ -606,237 +538,31 @@ public class Main {
     }
 
     private static void addBank() throws SQLException {
-        in = new Scanner(System.in);
-        System.out.println("Please, write the bank name: ");
-        name = in.nextLine();
-
-        try{
-            String insertTableSQL = "INSERT INTO banks"
-                    + "(bank_id, name) " + "VALUES"
-                    + "(?,?)";
-            dbActionsWParam(insertTableSQL, bid, name);
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        System.out.printf("Bank %s is saved in database on id - " + bid + "/n", name);
-        bid++;
+        newBank();
     }
 
     private static void addClient() throws SQLException {
-        System.out.println("Choose the bank to which you want to add customers:");
-        try{
-            String selectTableSQL = "SELECT bank_id, name from banks";
-            bankSelect(selectTableSQL);
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        if(bankList.size()>0){
-            for(int i = 0; i<bankList.size(); i++){
-                System.out.println(bankList.get(i).getId() + ". " + bankList.get(i).getBankName());
-            }
-        } else {
-            System.out.println("No one bank exist");
-        }
-
-        in = new Scanner(System.in);
-        System.out.println("Write the bank id: ");
-        chbid = in.nextInt();
-
-
-        for(int i = 0; i<bankList.size(); i++){
-            if(chbid == bankList.get(i).getId()){
-                chbidLine = bankList.get(i).getBankName();
-                System.out.println("You choosen bank - " + bankList.get(i).getBankName());
-            }
-        }
-//////////////////////////////////////////
-        System.out.println("Now create a client. Please, write his/her name:");
-
-//        try () {
-        in = new Scanner(System.in);
-        cName = in.nextLine();
-        try{
-            String selectTableSQL = "SELECT * from clients where bank_id =" + chbid;
-            clientSelect(selectTableSQL);
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        if(clientList.size()>0){
-            for(int i = 0; i<clientList.size(); i++){
-                if(clientList.get(i).getName().equals(cName)){
-                    System.out.println("That client already exist. Write name of the new client: ");
-                    cName = in.nextLine();
-                }
-            }
-        }
-        System.out.println("Age: ");
-        cAge = in.nextInt();
-        System.out.println("Gender - men? Write 'y' or 'n'");
-        in.nextLine();
-        cGenderLine = in.nextLine();
-        if (cGenderLine.equals("y")){
-            cGender = true;
-        } else cGender = false;
-//        }
-        try{
-            convertLine = String.valueOf(chbid).concat(String.valueOf(cid));
-            int cid = Integer.valueOf(convertLine);
-            String insertTableSQL = "INSERT INTO clients"
-                    + "(client_id, bank_id, name, age, gender) " + "VALUES"
-                    + "(?,?,?,?,?)";
-            dbActionsWParam(insertTableSQL, cid, chbid, cName, cAge, cGender);
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        cid++;
-        System.out.println("Client " + cName + "is pined to bank " + chbidLine);
+        chooseBank();
+        newClient();
     }
 
     private static void addAccount() throws SQLException {
-        System.out.println("Choose the client to which you want to add account:");
-        try{
-            String selectTableSQL = "SELECT * from clients";
-            clientSelect(selectTableSQL);
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        if(clientList.size()>0){
-            for(int i = 0; i<clientList.size(); i++){
-                System.out.println(clientList.get(i).getId() + ". " + clientList.get(i).getName());
-            }
-        } else {
-            System.out.println("No one client exist");
-        }
-
-//        try () {
-        in = new Scanner(System.in);
-        System.out.println("Write the client id: ");
-        chcid = in.nextInt();
-//        }
-
-        for(int i = 0; i<clientList.size(); i++){
-            if(chcid == clientList.get(i).getId()){
-                chcidLine = clientList.get(i).getName();
-                System.out.println("You choosen client - " + clientList.get(i).getName());
-            }
-        }
-
-//        try () {
-        in = new Scanner(System.in);
-        System.out.println("With overdraft? Write 'y' or 'n'");
-        aTypeLine = in.nextLine();
-        if (aTypeLine.equals("y")){
-            aType = true;
-        } else aType = false;
-        if (aType == true){
-            System.out.println("Balance: ");
-            aBal = in.nextDouble();
-            System.out.println("Overdraft: ");
-            aOD = in.nextDouble();
-        } else {
-            System.out.println("Balance: ");
-            aBal = in.nextDouble();
-            aOD = 0;
-        }
-//        }
-        try{
-            convertLine = String.valueOf(chcid).concat(String.valueOf(aid));
-            int aid = Integer.valueOf(convertLine);
-            String insertTableSQL = "INSERT INTO accounts"
-                    + "(account_id, client_id, account_type, balance, overdraft) " + "VALUES"
-                    + "(?,?,?,?,?)";
-            dbActionsWParam(insertTableSQL, aid, chcid, aType, aBal, aOD);
-            lineForUpdateClients = aid + ", ";
-//            lineForUpdateClients = lineForUpdateClients.concat(", ");
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        try{
-            String updateTableSQL = "UPDATE clients SET account_id = ? WHERE client_id = ?";
-            dbActionsWParam(updateTableSQL, lineForUpdateClients, chcid);
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        aid++;
+        chooseClient();
+        newAcc();
     }
 
     private static void refill() throws SQLException {
-        System.out.println("Choose the bank to which you want to add customers:");
-        try{
-            String selectTableSQL = "SELECT bank_id, name from banks";
-            bankSelect(selectTableSQL);
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        if(bankList.size()>0){
-            for(int i = 0; i<bankList.size(); i++){
-                System.out.println(bankList.get(i).getId() + ". " + bankList.get(i).getBankName());
-            }
-        } else {
-            System.out.println("No one bank exist");
-        }
-
-        in = new Scanner(System.in);
-            System.out.println("Write the bank id: ");
-            chbid = in.nextInt();
-
-
-        for(int i = 0; i<bankList.size(); i++){
-            if(chbid == bankList.get(i).getId()){
-                chbidLine = bankList.get(i).getBankName();
-                System.out.println("You choosen bank - " + bankList.get(i).getBankName());
-            }
-        }
-
-        System.out.println("Choose the client to which you want to add account:");
-        try{
-            String selectTableSQL = "SELECT * from clients where bank_id =" + chbid;
-            clientSelect(selectTableSQL);
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        if(clientList.size()>0){
-            for(int i = 0; i<clientList.size(); i++){
-                System.out.println(clientList.get(i).getId() + ". " + clientList.get(i).getName());
-            }
-        } else {
-            System.out.println("No one client exist");
-
-        }
-
-        in = new Scanner(System.in);
-            System.out.println("Write the client id: ");
-            chcid = in.nextInt();
-
-
-        for(int i = 0; i<clientList.size(); i++){
-            if(chcid == clientList.get(i).getId()){
-                chcidLine = clientList.get(i).getName();
-                System.out.println("You choosen client - " + clientList.get(i).getName());
-            }
-        }
-
-        System.out.println("Lets see at our accounts: ");
-        try{
-            String selectTableSQL = "SELECT * from accounts where client_id = ?";
-            accountSelect(selectTableSQL, chcid);
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        AbstractAccount a = new SavingAccount();
-        if(abAccountList.size()>0){
-            a.printAccInfo(abAccountList);
-        } else {
-            System.out.println("No one account exist");
-        }
+        chooseBank();
+        chooseClient();
+        showAcc();
 
         double amoref;
         int chaid;
         in = new Scanner(System.in);
-            System.out.println("Write the account id: ");
-            chaid = in.nextInt();
-            System.out.println("Write the amount refill: ");
-            amoref = in.nextDouble();
+        System.out.println("Write the account id: ");
+        chaid = in.nextInt();
+        System.out.println("Write the amount refill: ");
+        amoref = in.nextDouble();
 
         for (int i = 0;i<abAccountList.size();i++){
             if(abAccountList.get(i).id== chaid){
@@ -856,80 +582,16 @@ public class Main {
     }
 
     private static void withdrawal() throws SQLException {
-        System.out.println("Choose the bank to which you want to add customers:");
-        try{
-            String selectTableSQL = "SELECT bank_id, name from banks";
-            bankSelect(selectTableSQL);
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        if(bankList.size()>0){
-            for(int i = 0; i<bankList.size(); i++){
-                System.out.println(bankList.get(i).getId() + ". " + bankList.get(i).getBankName());
-            }
-        } else {
-            System.out.println("No one bank exist");
-        }
-
-        in = new Scanner(System.in);
-        System.out.println("Write the bank id: ");
-        chbid = in.nextInt();
-
-
-        for(int i = 0; i<bankList.size(); i++){
-            if(chbid == bankList.get(i).getId()){
-                chbidLine = bankList.get(i).getBankName();
-                System.out.println("You choosen bank - " + bankList.get(i).getBankName());
-            }
-        }
-
-        System.out.println("Choose the client to which you want to add account:");
-        try{
-            String selectTableSQL = "SELECT * from clients where bank_id =" + chbid;
-            clientSelect(selectTableSQL);
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        if(clientList.size()>0){
-            for(int i = 0; i<clientList.size(); i++){
-                System.out.println(clientList.get(i).getId() + ". " + clientList.get(i).getName());
-            }
-        } else {
-            System.out.println("No one client exist");
-        }
-
-        in = new Scanner(System.in);
-        System.out.println("Write the client id: ");
-        chcid = in.nextInt();
-
-
-        for(int i = 0; i<clientList.size(); i++){
-            if(chcid == clientList.get(i).getId()){
-                chcidLine = clientList.get(i).getName();
-                System.out.println("You choosen client - " + clientList.get(i).getName());
-            }
-        }
-
-        System.out.println("Lets see at our accounts: ");
-        try{
-            String selectTableSQL = "SELECT * from accounts where client_id = ?";
-            accountSelect(selectTableSQL, chcid);
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        AbstractAccount a = new SavingAccount();
-        if(abAccountList.size()>0){
-            a.printAccInfo(abAccountList);
-        } else {
-            System.out.println("No one account exist");
-        }
+        chooseBank();
+        chooseClient();
+        showAcc();
 
         double amowith;
         int chaid;
         in = new Scanner(System.in);
-            System.out.println("Write the account id: ");
-            chaid = in.nextInt();
-            System.out.println("Write the amount withdrawal: ");
+        System.out.println("Write the account id: ");
+        chaid = in.nextInt();
+        System.out.println("Write the amount withdrawal: ");
         amowith = in.nextDouble();
 
         for (int i = 0;i<abAccountList.size();i++){
