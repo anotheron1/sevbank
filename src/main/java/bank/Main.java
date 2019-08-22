@@ -14,42 +14,19 @@ public class Main {
     private static List<Bank> bankList;
     private static List<Client> clientList;
     private static List<AbstractAccount> abAccountList;
-    private static int bid = 0, cid = 0, aid = 0, chbid, chcid, cAge;
-    private static String name, chbidLine = "", cName, cGenderLine, chcidLine = "", aTypeLine, convertLine, lineForUpdateClients;
-    private static boolean cGender, aType;
-    private static double aBal, aOD, newbal;
+    private static int bid = 0;
+    private static int cid = 0;
+    private static int aid = 0;
+    private static int chbid;
+    private static int chcid;
+    private static String chbidLine = "";
+    private static String convertLine;
+    private static String lineForUpdateClients;
+    private static double newbal;
     private static Scanner in;
 
     public static void main(String[] args) {
-        try {
-            String createTableSQL = "CREATE TABLE banks("
-                    + "bank_id NUMERIC(5) NOT NULL, "
-                    + "name VARCHAR(20) NOT NULL, "
-                    + "PRIMARY KEY (bank_id) "
-                    + ")";
-            dbActions(createTableSQL);
-            createTableSQL = "CREATE TABLE clients("
-                    + "client_id NUMERIC(5) NOT NULL, "
-                    + "bank_id NUMERIC(5) NOT NULL, "
-                    + "name VARCHAR(20) NOT NULL, "
-                    + "age NUMERIC(3) NOT NULL, "
-                    + "gender BOOLEAN NOT NULL, " //true - мужчина
-                    + "account_id VARCHAR(10), "
-                    + "PRIMARY KEY (client_id) "
-                    + ")";
-            dbActions(createTableSQL);
-            createTableSQL = "CREATE TABLE accounts("
-                    + "account_id NUMERIC(10) NOT NULL, "
-                    + "client_id NUMERIC(5) NOT NULL, "
-                    + "account_type BOOLEAN NOT NULL, " //true - с овердрафтом
-                    + "balance NUMERIC(20) NOT NULL, "
-                    + "overdraft NUMERIC(5), "
-                    + "PRIMARY KEY (account_id) "
-                    + ")";
-            dbActions(createTableSQL);
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
+        createTable();
 
         System.out.println("Aloha! At the start you must create a bank.");
         newBank();
@@ -101,18 +78,46 @@ public class Main {
                             withdrawal();
                             break;
                         case 6:
-                            v = 784;
-                            break;
                         default:
                             v = 784;
                             break;
                     }
-                } catch (SQLException e) {
-                    System.out.println(e.getMessage());
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
             } while (v!=784);
+    }
+
+    private static void createTable() {
+        try {
+            String createTableSQL = "CREATE TABLE banks("
+                    + "bank_id NUMERIC(5) NOT NULL, "
+                    + "name VARCHAR(20) NOT NULL, "
+                    + "PRIMARY KEY (bank_id) "
+                    + ")";
+            dbActions(createTableSQL);
+            createTableSQL = "CREATE TABLE clients("
+                    + "client_id NUMERIC(5) NOT NULL, "
+                    + "bank_id NUMERIC(5) NOT NULL, "
+                    + "name VARCHAR(20) NOT NULL, "
+                    + "age NUMERIC(3) NOT NULL, "
+                    + "gender BOOLEAN NOT NULL, " //true - мужчина
+                    + "account_id VARCHAR(10), "
+                    + "PRIMARY KEY (client_id) "
+                    + ")";
+            dbActions(createTableSQL);
+            createTableSQL = "CREATE TABLE accounts("
+                    + "account_id NUMERIC(10) NOT NULL, "
+                    + "client_id NUMERIC(5) NOT NULL, "
+                    + "account_type BOOLEAN NOT NULL, " //true - с овердрафтом
+                    + "balance NUMERIC(20) NOT NULL, "
+                    + "overdraft NUMERIC(5), "
+                    + "PRIMARY KEY (account_id) "
+                    + ")";
+            dbActions(createTableSQL);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private static void showAcc() {
@@ -133,11 +138,11 @@ public class Main {
     private static void newAcc() {
         in = new Scanner(System.in);
         System.out.println("With overdraft? Write 'y' or 'n'");
-        aTypeLine = in.nextLine();
-        if (aTypeLine.equals("y")){
-            aType = true;
-        } else aType = false;
-        if (aType == true){
+        String aTypeLine = in.nextLine();
+        boolean aType = aTypeLine.equals("y");
+        double aBal;
+        double aOD;
+        if (aType){
             System.out.println("Balance: ");
             aBal = in.nextDouble();
             System.out.println("Overdraft: ");
@@ -176,8 +181,8 @@ public class Main {
             System.out.println(e.getMessage());
         }
         if(clientList.size()>0){
-            for(int i = 0; i<clientList.size(); i++){
-                System.out.println(clientList.get(i).getId() + ". " + clientList.get(i).getName());
+            for (Client client : clientList) {
+                System.out.println(client.getId() + ". " + client.getName());
             }
         } else {
             System.out.println("No one client exist");
@@ -187,10 +192,10 @@ public class Main {
         System.out.println("Write the client id: ");
         chcid = in.nextInt();
 
-        for(int i = 0; i<clientList.size(); i++){
-            if(chcid == clientList.get(i).getId()){
-                chcidLine = clientList.get(i).getName();
-                System.out.println("You choosen client - " + clientList.get(i).getName());
+        for (Client client : clientList) {
+            if (chcid == client.getId()) {
+                String chcidLine = client.getName();
+                System.out.println("You choosen client - " + chcidLine);
             }
         }
     }
@@ -199,7 +204,7 @@ public class Main {
         System.out.println("Now create a client. Please, write his/her name:");
 
         in = new Scanner(System.in);
-        cName = in.nextLine();
+        String cName = in.nextLine();
         try{
             String selectTableSQL = "SELECT * from clients where bank_id =" + chbid;
             clientSelect(selectTableSQL);
@@ -207,21 +212,19 @@ public class Main {
             System.out.println(e.getMessage());
         }
         if(clientList.size()>0){
-            for(int i = 0; i<clientList.size(); i++){
-                if(clientList.get(i).getName().equals(cName)){
+            for (Client client : clientList) {
+                if (client.getName().equals(cName)) {
                     System.out.println("That client already exist. Write name of the new client: ");
                     cName = in.nextLine();
                 }
             }
         }
         System.out.println("Age: ");
-        cAge = in.nextInt();
+        int cAge = in.nextInt();
         System.out.println("Gender - men? Write 'y' or 'n'");
         in.nextLine();
-        cGenderLine = in.nextLine();
-        if (cGenderLine.equals("y")){
-            cGender = true;
-        } else cGender = false;
+        String cGenderLine = in.nextLine();
+        boolean cGender = cGenderLine.equals("y");
         try{
             convertLine = String.valueOf(chbid).concat(String.valueOf(cid));
             int cid = Integer.valueOf(convertLine);
@@ -239,7 +242,7 @@ public class Main {
     private static void newBank() {
         in = new Scanner(System.in);
         System.out.println("Please, write the bank name: ");
-        name = in.nextLine();
+        String name = in.nextLine();
 
         try{
             String insertTableSQL = "INSERT INTO banks"
@@ -262,8 +265,8 @@ public class Main {
             System.out.println(e.getMessage());
         }
         if(bankList.size()>0){
-            for(int i = 0; i<bankList.size(); i++){
-                System.out.println(bankList.get(i).getId() + ". " + bankList.get(i).getBankName());
+            for (Bank bank : bankList) {
+                System.out.println(bank.getId() + ". " + bank.getBankName());
             }
         } else {
             System.out.println("No one bank exist");
@@ -271,10 +274,10 @@ public class Main {
         in = new Scanner(System.in);
         System.out.println("Write the bank id: ");
         chbid = in.nextInt();
-        for(int i = 0; i<bankList.size(); i++){
-            if(chbid == bankList.get(i).getId()){
-                chbidLine = bankList.get(i).getBankName();
-                System.out.println("You choosen bank - " + bankList.get(i).getBankName());
+        for (Bank bank : bankList) {
+            if (chbid == bank.getId()) {
+                chbidLine = bank.getBankName();
+                System.out.println("You choosen bank - " + bank.getBankName());
             }
         }
     }
@@ -389,10 +392,10 @@ public class Main {
         } catch (SQLException e){
             System.out.println(e.getMessage());
         }
-        for(int i = 0; i<clientList.size();i++){
-            if(clientList.get(i).getId() == chcid){
-                if(clientList.get(i).getListAcc() != null){
-                    lineForUpdateClients = clientList.get(i).getListAcc().concat(lineForUpdateClients);
+        for (Client client : clientList) {
+            if (client.getId() == chcid) {
+                if (client.getListAcc() != null) {
+                    lineForUpdateClients = client.getListAcc().concat(lineForUpdateClients);
                 }
             }
         }
@@ -443,7 +446,7 @@ public class Main {
             ResultSet rs = statement.executeQuery(selectTableSQL);
 
             while (rs.next()) {
-                Integer bid = rs.getInt("bank_id");
+                int bid = rs.getInt("bank_id");
                 String name = rs.getString("name");
                 Bank bank = new Bank();
                 bank.setId(bid);
@@ -510,11 +513,11 @@ public class Main {
 
             while (rs.next()) {
                 int aid = rs.getInt("account_id");
-                Integer client = rs.getInt("client_id");
+                int client = rs.getInt("client_id");
                 boolean aType = rs.getBoolean("account_type");
                 double aBal = rs.getDouble("balance");
                 double aOD = rs.getDouble("overdraft");
-                if(aType==true){
+                if(aType){
                     CheckingAccount account = new CheckingAccount();
                     account.setId(aid);
                     account.setBalance(aBal);
@@ -537,21 +540,21 @@ public class Main {
         return abAccountList;
     }
 
-    private static void addBank() throws SQLException {
+    private static void addBank() {
         newBank();
     }
 
-    private static void addClient() throws SQLException {
+    private static void addClient() {
         chooseBank();
         newClient();
     }
 
-    private static void addAccount() throws SQLException {
+    private static void addAccount() {
         chooseClient();
         newAcc();
     }
 
-    private static void refill() throws SQLException {
+    private static void refill() {
         chooseBank();
         chooseClient();
         showAcc();
@@ -564,11 +567,11 @@ public class Main {
         System.out.println("Write the amount refill: ");
         amoref = in.nextDouble();
 
-        for (int i = 0;i<abAccountList.size();i++){
-            if(abAccountList.get(i).id== chaid){
+        for (AbstractAccount abstractAccount : abAccountList) {
+            if (abstractAccount.id == chaid) {
                 try {
-                    newbal = abAccountList.get(i).refill(amoref);
-                } catch (NegativeOperationException e){
+                    newbal = abstractAccount.refill(amoref);
+                } catch (NegativeOperationException e) {
                     System.out.println(e.getMessage());
                 }
             }
@@ -581,7 +584,7 @@ public class Main {
         }
     }
 
-    private static void withdrawal() throws SQLException {
+    private static void withdrawal() {
         chooseBank();
         chooseClient();
         showAcc();
@@ -594,11 +597,11 @@ public class Main {
         System.out.println("Write the amount withdrawal: ");
         amowith = in.nextDouble();
 
-        for (int i = 0;i<abAccountList.size();i++){
-            if(abAccountList.get(i).id== chaid){
+        for (AbstractAccount abstractAccount : abAccountList) {
+            if (abstractAccount.id == chaid) {
                 try {
-                    newbal = abAccountList.get(i).withdrawal(amowith);
-                } catch (NegativeOperationException e){
+                    newbal = abstractAccount.withdrawal(amowith);
+                } catch (NegativeOperationException e) {
                     System.out.println(e.getMessage());
                 }
             }
